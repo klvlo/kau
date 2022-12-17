@@ -9,21 +9,20 @@ from Character_angry import Character_angry
 from Block_sky import Block_sky
 from Block_small import Block_small
 from time import time
+from Character_sweet import Character_sweet
 
 
 
 def main():
     joystick = Joystick()
-    back = Image.open("background.png")
-    basic = Character_basic((0,114),back) #basic 114 / slide 130 / hi 80 / small 119
-    back.paste(basic.shape,(basic.position[0], basic.position[1]))
-    joystick.disp.image(back)
-    mode1 = np.random.randint(0,2,50).tolist()
-    mode2 = np.random.randint(0,2,100).tolist()
-    time = 0
-    block_out = 0
-    flag = 0
-    where_block = [1,2]
+    back = Image.open("background.png") # 배경이미지 선언
+    basic = Character_basic((0,114),back) # 기본 캐릭터 선언
+    back.paste(basic.shape,(basic.position[0], basic.position[1])) # 캐릭터를 배경과 합치기
+    joystick.disp.image(back) # 게임 화면 출력
+    time = random.randint(10,20) # 장애물 개수를 10~20 사이로 랜덤하게 설정
+    block_out = 0 # 장애물이 나온 상태인지 아닌지 확인
+    flag = 0 # 캐릭터의 상태를 확인
+    where_block = [1,2] # 장애물이 공중인지 바닥인지 정하기 위한 리스트
     basic_ = Character_basic((0,114),back)
 
     while True:
@@ -56,23 +55,31 @@ def main():
             command['btn_B'] = True
             command['move'] = True
 
-        if block_out == 0:
-            fireflag = random.choice(where_block) # 불의 위치를 조정하기 위해 랜덤으로 0,1 추출
-            if fireflag == 1: #fire가 0이면 바닥에 있는 불을 출력
-                fire = Block_small((180,119),back) #basic 114 / slide 130 / hi 80 / small 119
-                back.paste(fire.shape,(fire.position[0], fire.position[1]))
-                joystick.disp.image(back)
-                block_out = 1
-                time += 1
-              
-            elif fireflag == 2: # fire가 1이면 공중에서 불이 날라온다.
-                block_out = 1
-                fire = Block_sky((180,80),back)
-                back.paste(fire.shape,(fire.position[0], fire.position[1]))
-                joystick.disp.image(back)
-                time += 1
+        if time > 0: # 만약 남은 장애물이 1개 이상일 때
+            if block_out == 0: #블락이 나와있지 않다면
+                fireflag = random.choice(where_block) # 불의 위치를 조정하기 위해 랜덤으로 0,1 추출
+                if fireflag == 1: #fireflag 가 0이면 바닥에 있는 불을 출력
+                    fire = Block_small((180,119),back) 
+                    back.paste(fire.shape,(fire.position[0], fire.position[1]))
+                    joystick.disp.image(back)
+                    block_out = 1
+                    
+                
+                elif fireflag == 2: # fire가 1이면 공중에서 불이 날라온다.
+                    block_out = 1
+                    fire = Block_sky((180,80),back)
+                    back.paste(fire.shape,(fire.position[0], fire.position[1]))
+                    joystick.disp.image(back)
+        
+        else: # 모든 장애물을 피했을 때 고구마 출력하기
+            back = Image.open("background.png")
+            sweet = Character_sweet((88,70),back) 
+            back.paste(sweet.shape,(sweet.position[0], sweet.position[1]))
+            joystick.disp.image(back)
+            break
 
-        flag, block_out = basic.move(back, flag, fireflag, fire, block_out, basic_, command)
+        flag, block_out, time = basic.move(back, flag, fireflag, fire, block_out, time, basic_, command)
+ 
         
 
 
