@@ -8,6 +8,8 @@ from Character_slide import Character_slide
 from Character_angry import Character_angry
 from Block_sky import Block_sky
 from Block_small import Block_small
+from time import time
+
 
 
 def main():
@@ -19,13 +21,16 @@ def main():
     mode1 = np.random.randint(0,2,50).tolist()
     mode2 = np.random.randint(0,2,100).tolist()
     time = 0
-    block = [0,1]
+    block_out = 0
+    flag = 0
+    where_block = [1,2]
+    basic_ = Character_basic((0,114),back)
 
     while True:
         command = {'move': False, 'up_pressed': False , 'down_pressed': False, 'left_pressed': False, 'right_pressed': False,
         'btn_A': False, 'btn_B': False}
 
-        if not joystick.button_U.value:
+        if not joystick.button_U.value: # 조이스틱 인식 부분
             command['up_pressed'] = True
             command['move'] = True
 
@@ -51,17 +56,24 @@ def main():
             command['btn_B'] = True
             command['move'] = True
 
-        fire = random.choice(block)
-        if fire == 0:
-            small = Block_small((100,119),back) #basic 114 / slide 130 / hi 80 / small 119
-            back.paste(small.shape,(small.position[0], small.position[1]))
-            joystick.disp.image(back)
-        else:
-            sky = Block_sky((100,80),back)
-            back.paste(sky.shape,(sky.position[0], sky.position[1]))
-            joystick.disp.image(back)
+        if block_out == 0:
+            fireflag = random.choice(where_block) # 불의 위치를 조정하기 위해 랜덤으로 0,1 추출
+            if fireflag == 1: #fire가 0이면 바닥에 있는 불을 출력
+                fire = Block_small((180,119),back) #basic 114 / slide 130 / hi 80 / small 119
+                back.paste(fire.shape,(fire.position[0], fire.position[1]))
+                joystick.disp.image(back)
+                block_out = 1
+                time += 1
+              
+            elif fireflag == 2: # fire가 1이면 공중에서 불이 날라온다.
+                block_out = 1
+                fire = Block_sky((180,80),back)
+                back.paste(fire.shape,(fire.position[0], fire.position[1]))
+                joystick.disp.image(back)
+                time += 1
 
-        basic.move(back, command)
+        flag, block_out = basic.move(back, flag, fireflag, fire, block_out, basic_, command)
+        
 
 
 if __name__ == '__main__':
